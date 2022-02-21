@@ -21,7 +21,7 @@ void write_file(int sockfd)
 	int n;
 	FILE *fp;
 	FILE *fpgr;
-	char *filename = "recv.avi";
+	char *filename = "recv.mp4";
 	char *filename1 = "plot.txt";
 	char buffer[SIZE];
 	bzero(buffer, SIZE);

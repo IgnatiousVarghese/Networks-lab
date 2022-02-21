@@ -20,7 +20,7 @@ void send_file(int sockfd)
     bzero(data, SIZE);
     FILE *fp;
 
-    char *filename = "send.avi";
+    char *filename = "send.mp4";
 
     fp = fopen(filename, "r");
     if (fp == NULL)
