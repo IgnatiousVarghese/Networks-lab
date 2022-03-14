@@ -9,7 +9,7 @@
 #include <dirent.h>
 #include <time.h>
 #define MAX 80
-#define PORT 8080
+#define PORT 4035
 #define SA struct sockaddr
 #include <arpa/inet.h>
 #define SIZE 500
@@ -51,16 +51,13 @@ double store_file(int connfd, char filename[])
             printf("**file received**\n");
             break;
         }
-        if (strncmp(str, "error", 5) == 0)
-        {
-            return -1;
-        }
 
         fwrite(buffer, sizeof(char), n, fp);
         bzero(buffer, SIZE);
     }
     time_t end = time(NULL);
     double time_taken = difftime(end, start);
+    fclose(fp);
     return time_taken;
 }
 
@@ -175,20 +172,35 @@ void session(struct User user, int connfd)
         }
         else if (strcmp(str1, "GetFile") == 0)
         {
-            int flag = get_file(connfd, str2);
-            if (flag == 0)
+            FILE *fp = fopen(str2, "r");
+            if (fp != NULL)
             {
-                strcpy(str, "File Send sucessfully.\n");
+                bzero(str, sizeof(str));
+                strcpy(str, "OK");
                 send(connfd, str, sizeof(str), 0);
-            }
-            else if (flag == -1)
-            {
-                strcpy(str, "File NOT Found.\n");
-                send(connfd, str, sizeof(str), 0);
+
+                fclose(fp);
+                int flag = get_file(connfd, str2);
+                if (flag == 0)
+                {
+                    strcpy(str, "File Send sucessfully.\n");
+                    send(connfd, str, sizeof(str), 0);
+                }
+                else if (flag == -1)
+                {
+                    strcpy(str, "File NOT Found.\n");
+                    send(connfd, str, sizeof(str), 0);
+                }
+                else
+                {
+                    strcpy(str, "File NOT Send.\n");
+                    send(connfd, str, sizeof(str), 0);
+                }
             }
             else
             {
-                strcpy(str, "File NOT Send.\n");
+                bzero(str, sizeof(str));
+                strcpy(str, "--");
                 send(connfd, str, sizeof(str), 0);
             }
         }
@@ -328,7 +340,7 @@ int main()
             strcpy(str, "505 Command not supported.\n");
             send(connfd, str, sizeof(str), 0);
         }
-        printf("---------\n");
+        // printf("---------\n");
     }
 
     // commence session if user authenticated

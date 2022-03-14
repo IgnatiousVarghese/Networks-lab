@@ -6,7 +6,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #define MAX 80
-#define PORT 8080
+#define PORT 4035
 #define SA struct sockaddr
 #include <arpa/inet.h>
 #include <time.h>
@@ -33,20 +33,12 @@ int store_file(int connfd, char filename[])
 	bzero(data, SIZE);
 	FILE *fp;
 	fp = fopen(filename, "r");
-	// printf("-%s-\n", filename);
-	if (fp == NULL)
-	{
-		printf("[-]Error in reading file.");
-		bzero(data, SIZE);
-		strcpy(data, "error");
-		send(connfd, data, sizeof(data), 0);
-		acknowledge(connfd);
-		return -1;
-	}
+	
+	time_t start = time(NULL);
 	while (1)
 	{
 		bzero(data, SIZE);
-		
+
 		int bs = fread(data, sizeof(char), 500, fp);
 		// printf("#%d#\n", bs);
 		if (bs == 0)
@@ -63,7 +55,9 @@ int store_file(int connfd, char filename[])
 		acknowledge(connfd);
 		// printf("**\n");
 	}
-	printf("--\nFile stored\n--\n");
+	time_t end = time(NULL);
+	double time_taken = difftime(end, start);
+	printf("--\nFile stored\ntime taken = %.2f s\n--\n", time_taken);
 	fclose(fp);
 	return 0;
 }
@@ -167,28 +161,47 @@ int main()
 		if (strcmp(str1, "StoreFile") == 0)
 		{
 			// printf("hello\n");
-			send(sockfd, str, sizeof(str), 0);
+			FILE *fp = fopen(str2, "r");
+			if (fp != NULL)
+			{
+				fclose(fp);
+				send(sockfd, str, sizeof(str), 0);
 
-			char ack[SIZE];
-			bzero(ack, sizeof(ack));
-			recv(sockfd, ack, sizeof(ack), 0);
-			// printf("%s-- ", ack);
+				char ack[SIZE];
+				bzero(ack, sizeof(ack));
+				recv(sockfd, ack, sizeof(ack), 0);
+				// printf("%s-- ", ack);
 
-			int flag = store_file(sockfd, str2);
-			
+				int flag = store_file(sockfd, str2);
+			}
+			else
+				printf("--\nFile Does Not exist.\n--\n");
 		}
 		else if (strcmp(str1, "GetFile") == 0)
 		{
 			send(sockfd, str, sizeof(str), 0);
-			double time_taken = get_file(sockfd, str2);
+
 			bzero(str, sizeof(str));
 			recv(sockfd, str, sizeof(str), 0);
-			// printf("--\n%s--\n", str);
-			if (time_taken >= 0)
-				printf("-- File Received sucessfully\ttime taken = %.2f s --\n", time_taken);
+
+			if (strncmp(str, "OK", 2) == 0)
+			{
+
+				double time_taken = get_file(sockfd, str2);
+				bzero(str, sizeof(str));
+				recv(sockfd, str, sizeof(str), 0);
+				// printf("--\n%s--\n", str);
+				if (time_taken >= 0)
+					printf("-- File Received sucessfully\ttime taken = %.2f s --\n", time_taken);
+			}
+			else
+			{
+				printf("--\n File Does not exists.\n--\n");
+			}
 		}
-		else if (strncmp(str, "Bye", 3) == 0)
+		else if (strncmp(str, "QUIT", 3) == 0)
 		{
+			strcpy(str, "Bye");
 			send(sockfd, str, sizeof(str), 0);
 			break;
 		}
