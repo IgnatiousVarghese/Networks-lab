@@ -1,0 +1,26 @@
+Readme
+
+Execute following commands to run the FTAPServer.c from FTAPServer folder
+** gcc FTAPServer.c -o FTAPServer
+**./FTAPServer
+
+Execute following commands to run the FTAPClient.c from FTAPClient folder
+**gcc FTAPClient.c -o FTAPClient
+**./FTAPClient
+
+After successfull execution.
+
+--> Enter "START" at client side to establish the connection with server.
+-->Enter "USERN <username>" . 
+-->Enter "PASSWD <password>" .
+after successfull authentication to server can enter following commands.
+1.ListDir
+    Lists the files in the server (FTAPServer folder).
+2.GetFile <filename.txt>
+    Gets the file from server.
+3.StoreFile <filename.txt>
+    stores the file to server.
+4.CreateFile <filename.txt>
+    Creates the file in the server (FTAPServer folder).
+5.Bye
+    Closes the connection with server.

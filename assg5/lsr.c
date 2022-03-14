@@ -19,10 +19,10 @@ struct Rout_Tab
 
 void display(struct Rout_Tab table)
 {
-    printf("Routing table is:\ndest  cost  path\n");
+    printf("Routing table is:\ndest\tcost\tpath\n");
     for(int i = 1; i<=n; i++)
     {
-        printf("%d    %d\t  ", i, table.nodes[i].cost);
+        printf("%d\t%d\t", i, table.nodes[i].cost);
         for(int j = 0; j< table.nodes[i].path_len; j++)
         {
             if(table.nodes[i].path[j] == -1)
