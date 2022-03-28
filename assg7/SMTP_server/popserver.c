@@ -72,8 +72,8 @@ void display_mails(int sockfd, struct mail *mails, int total_mails)
         get_field_pop3(mails[i].data, "Subject", subject);
         get_field_pop3(mails[i].data, "Received", received);
         get_field_pop3(mails[i].data, "Body", body);
-        sprintf(str, "%d. <%s> <received time:%s> <%s>\n", i, from, received, subject);
-        printf("%s", str);
+        sprintf(str, "%d. <%s> <received time:%s> <d %s>\n", i+1, from, received, subject);
+        // printf("%s", str);
         strcat(msg, str);
     }
     send(sockfd, msg, sizeof(msg), 0);
@@ -95,7 +95,7 @@ int read_all_mails(int sockfd, struct user User, struct mail *mails)
         {
             if (fscanf(mailbox, "%[^\n]%*c", str) == EOF)
             {
-                printf("[+] read full inbox.\n");
+                printf("[+] completed reading read full inbox of %s.\n", User.uname);
                 flag = 1;
                 break;
             }
@@ -103,7 +103,7 @@ int read_all_mails(int sockfd, struct user User, struct mail *mails)
             strcat(mail_txt, "\n");
             if (strcmp(str, ".") == 0)
             {
-                printf("-->>%s\n", mail_txt);
+                // printf("-->>%s\n", mail_txt);
                 strcpy(mails[i].data, mail_txt);
                 bzero(mail_txt, sizeof(mail_txt));
                 i++;
@@ -133,7 +133,26 @@ void session_pop3(int sockfd, struct user User, struct user *Users, int count)
         {
             int n;
             sscanf(str, "%*s%d", &n);
+            if (n > 0 && n <= total_mails)
+            {
+                char mailbox_fname[100] = {0};
+                sprintf(mailbox_fname, "%s/mymailbox.mail", User.uname);
+                printf("filename to del : --%s--\n", mailbox_fname);
+                FILE *mailbox ;
+                mailbox = fopen(mailbox_fname, "w");
+                fclose(mailbox);
+                mailbox = fopen(mailbox_fname, "a");
+                // write into mailbox excluding deleted mail
+                for(int i = 0; i<total_mails; i++)
+                {
+                    if(i == n-1)
+                        continue;
+                    fprintf(mailbox, "%s", mails[i].data);
+                }
+                fclose(mailbox);
+            }
             printf("delete %d th mail\n", n);
+            total_mails = read_all_mails(sockfd, User, mails);
             display_mails(sockfd, mails, total_mails);
         }
         else if (str[0] == 'q')
@@ -255,7 +274,7 @@ int main(int argc, char *argv[])
                     if (strcmp(str2, password) == 0)
                     {
                         flag = 1;
-                        sprintf(buff, "305 User Authenticated with password\nWelcome %s\n", uname);
+                        sprintf(buff, "305 User Authenticated with password\nWelcome %s to POP3 server\n", uname);
                         printf("[+] 305 User %s Authenticated with password\n", Users[j].uname);
                         // user.is_authenticated = 1;
                         // strcpy(user.uname, uname);

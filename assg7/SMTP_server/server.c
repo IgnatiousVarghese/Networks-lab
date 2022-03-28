@@ -53,10 +53,6 @@ void get_time_string(char *time_string){
     strftime(time_string, 100, "%a, %d %b %Y %I:%M:%S Localtime", timeinfo);
 }
 
-void manage_mail()
-{
-	return;
-}
 
 void session(int sockfd, struct user User, struct user *Users, int count)
 {
@@ -74,7 +70,7 @@ void session(int sockfd, struct user User, struct user *Users, int count)
 			bzero(mail, sizeof(mail));
 			recv(sockfd, mail, sizeof(mail), 0);
 			printf("[+] Received mail.\n");
-			printf("-----\n%s-----\n", mail);
+			// printf("-----\n%s-----\n", mail);
 
 			// acknowledge received mail.
 			// strcpy(ack, "mail received ack.\n");
@@ -112,7 +108,7 @@ void session(int sockfd, struct user User, struct user *Users, int count)
 				continue;
 			}
 
-			printf("from:*%s*\nto:*%s*\nsub:*%s*\nbody:*%s*\n", from, to, subject, body);
+			// printf("from:*%s*\nto:*%s*\nsub:*%s*\nbody:*%s*\n", from, to, subject, body);
 
 			// verify if "from" email is logged in user.
 			if (strncmp(User.uname, from, strlen(User.uname)) != 0)
@@ -166,11 +162,6 @@ void session(int sockfd, struct user User, struct user *Users, int count)
 			printf("[+] %s has sent mail to %s.\n", from, to);
 			send(sockfd, str, sizeof(str), 0);
 		}
-		else if(strcmp(str, "1 ManageMail.") == 0)
-		{
-			manage_mail();
-		}
-
 		else if (strcmp(str, "3 EXIT.") == 0)
 			break;
 	}

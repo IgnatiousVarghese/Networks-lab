@@ -19,7 +19,7 @@ void acknowledge(int sockfd)
 	char ack[SIZE];
 	bzero(ack, sizeof(ack));
 	recv(sockfd, ack, sizeof(ack), 0);
-	printf("[ACK] %s", ack);
+	// printf("[ACK] %s", ack);
 	// if (strncmp(ack, "OK", 2) == 0)
 	// {
 	// 	printf("acknowledged\n");
@@ -184,10 +184,9 @@ int main(int argc, char *argv[])
 		printf("%s", msg);
 		bzero(str, sizeof(str));
 		scanf("%[^\n]%*c", str);
-		printf("**--%s--**\n", str);
+		// printf("**--%s--**\n", str);
 		if (str[0] == '1') // Manage mail
 		{
-			printf("[+] call to manage_mail() \n");
 			if (1) // pop3 socket create and verification
 			{
 				sockfd_pop3 = socket(AF_INET, SOCK_STREAM, 0);
